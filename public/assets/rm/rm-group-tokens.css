@@ -1,0 +1,96 @@
+/* RM Group — design tokens v1.0
+   Layer 1 is the raw palette. Layer 2 is semantic: components use layer 2 only,
+   and never a raw hex. Gold text minimums are enforced by the contrast table in
+   the brand guidelines — do not "brighten" a token to make something pop. */
+
+:root {
+  /* ---- Layer 1 · raw palette ---- */
+  /* gold — one hue (OKLCH 90deg); lightness only */
+  --rm-gold-50: #FBF6E6;
+  --rm-gold-100: #F9ECC9;
+  --rm-gold-200: #F1DBA1;
+  --rm-gold-300: #E4C674;
+  --rm-gold-400: #D4AF41;
+  --rm-gold-500: #BD9600;
+  --rm-gold-600: #A47E00;
+  --rm-gold-700: #876600;
+  --rm-gold-800: #684E00;
+  --rm-gold-900: #4B3800;
+  --rm-gold-950: #2F2300;
+  /* neutral — warm (OKLCH 88deg); never fully desaturated */
+  --rm-neutral-0: #FFFFFF;
+  --rm-neutral-50: #FAF9F4;
+  --rm-neutral-100: #F5F2EC;
+  --rm-neutral-200: #E9E6DD;
+  --rm-neutral-300: #DAD6CC;
+  --rm-neutral-400: #B5B1A6;
+  --rm-neutral-500: #908C81;
+  --rm-neutral-600: #716C61;
+  --rm-neutral-700: #565146;
+  --rm-neutral-800: #373329;
+  --rm-neutral-900: #201D15;
+  --rm-neutral-950: #110F08;
+
+  /* ---- Layer 2 · semantic ---- */
+  /* surfaces */
+  --rm-surface:            #FAF9F4;  /* paper — the default ground      */
+  --rm-surface-sunken:     #F5F2EC;
+  --rm-surface-raised:     #FFFFFF;
+  --rm-surface-ink:        #110F08;  /* the only dark ground            */
+  --rm-surface-ink-raised: #201D15;
+  --rm-surface-gold-tint:  #FBF6E6;
+
+  /* text */
+  --rm-text:               #110F08;  /* 18.18:1 on paper — AAA          */
+  --rm-text-secondary:     #373329;  /* 11.94:1 — AAA                   */
+  --rm-text-muted:         #565146;  /*  7.49:1 — AAA                   */
+  --rm-text-on-ink:        #FAF9F4;  /* 18.18:1 on ink — AAA            */
+  --rm-text-on-ink-muted:  #DAD6CC;  /* 13.21:1 on ink — AAA            */
+  --rm-text-disabled:      #B5B1A6;
+
+  /* borders */
+  --rm-border-hairline:    #E9E6DD;  /* decorative dividers only        */
+  --rm-border:             #DAD6CC;  /* decorative containers only      */
+  --rm-border-interactive: #908C81;  /* 3.19:1 — the minimum that passes 3:1 */
+
+  /* brand */
+  --rm-brand:              #D4AF41;  /* gold-400 — foil, rules, marks on ink       */
+  --rm-brand-deep:         #BD9600;  /* gold-500 — print primary, focus ring       */
+  --rm-brand-ink:          #876600;  /* gold-700 — smallest legal gold TEXT on paper, 5.07:1 */
+  --rm-brand-ink-strong:   #684E00;  /* gold-800 — print-safe gold text, 7.44:1    */
+  --rm-brand-on-dark:      #D4AF41;  /* 9.13:1 on ink — the gold for dark grounds  */
+
+  /* interaction */
+  --rm-focus:              #BD9600;
+  --rm-focus-ring:         0 0 0 2px #FAF9F4, 0 0 0 4px #BD9600;
+  --rm-link:               #684E00;
+
+  /* ---- spacing (8 steps — use these, not one-off values) ---- */
+  --rm-space-1: 4px;   --rm-space-2: 8px;   --rm-space-3: 12px;  --rm-space-4: 16px;
+  --rm-space-5: 24px;  --rm-space-6: 32px;  --rm-space-7: 48px;  --rm-space-8: 64px;
+
+  /* ---- radius (two, plus a pill) ---- */
+  --rm-radius-1: 2px;  --rm-radius-2: 6px;  --rm-radius-pill: 999px;
+
+  /* ---- typography ---- */
+  --rm-font-display: "Fraunces", "Source Serif 4", Georgia, "Times New Roman", serif;
+  --rm-font-text:    Inter, "Helvetica Neue", Arial, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --rm-font-mono:    ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --rm-measure: 68ch;
+  --rm-weight-body: 400; --rm-weight-medium: 500; --rm-weight-bold: 650;
+
+  /* ---- motion ---- */
+  --rm-ease: cubic-bezier(.2,.7,.3,1);
+  --rm-duration-fast: 180ms;   /* state changes           */
+  --rm-duration-rule: 320ms;   /* the signature rule draw */
+
+  /* ---- layout ---- */
+  --rm-max-width: 1320px;
+  --rm-gutter: 16px;      /* mobile  */
+}
+@media (min-width: 480px)  { :root { --rm-gutter: 20px; } }
+@media (min-width: 1024px) { :root { --rm-gutter: 24px; } }
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --rm-duration-fast: 0ms; --rm-duration-rule: 0ms; }
+}
