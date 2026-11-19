@@ -14,8 +14,15 @@ export default function AppHomePage() {
     queryKey: ['students'],
     queryFn: () => api.students(),
   });
+  const { data: proposalsData } = useQuery({
+    queryKey: ['proposals'],
+    queryFn: () => api.proposals(),
+  });
   const students = data?.items ?? [];
-  const need = students.filter((s) => !s.consultationDone && s.stage > 0);
+  const need = students.filter((s) => !s.consultationDone && s.stage >= 0);
+  const proposalItems = proposalsData?.items ?? [];
+  const proposalCount = proposalItems.length;
+  const openedByFamilies = proposalItems.reduce((n, p) => n + p.openCount, 0);
   const dateStr = new Date().toLocaleDateString('en-GB', {
     weekday: 'long',
     day: 'numeric',
@@ -50,8 +57,8 @@ export default function AppHomePage() {
         {[
           ['Your students', students.length],
           ['Need consultation', need.length],
-          ['Proposals', 0],
-          ['Opened by families', 0],
+          ['Proposals', proposalCount],
+          ['Opened by families', openedByFamilies],
         ].map(([label, n]) => (
           <div key={String(label)} className="card gl stat">
             <span>{label}</span>

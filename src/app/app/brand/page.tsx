@@ -1,31 +1,79 @@
 'use client';
 
-import { useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 import { PageHead } from '@/components/page-head';
 import { Icon } from '@/components/icon';
 import { CoverPicker } from '@/components/cover-picker';
 import { CoverId, coverImageUrl } from '@/lib/covers';
 import { useAuth } from '@/components/auth-provider';
+import { api } from '@/lib/api-client';
 
 export default function BrandingPage() {
   const { user } = useAuth();
-  const b = {
-    name: user?.displayName ?? '',
-    title: user?.role ?? '',
-    wa: '',
-    email: user?.email ?? '',
-    agency: user?.agency ?? '',
-    sign: '',
-    cover: 'oxford-spires-dusk',
-  };
-  const [cover, setCover] = useState<CoverId>(b.cover as CoverId);
+  const qc = useQueryClient();
+  const { data, isLoading } = useQuery({
+    queryKey: ['branding'],
+    queryFn: () => api.branding(),
+  });
+
+  const [title, setTitle] = useState('');
+  const [whatsapp, setWhatsapp] = useState('');
+  const [email, setEmail] = useState('');
+  const [agency, setAgency] = useState('');
+  const [signOff, setSignOff] = useState('');
+  const [cover, setCover] = useState<CoverId>('oxford-spires-dusk');
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    if (data) {
+      setTitle(data.title ?? '');
+      setWhatsapp(data.whatsapp ?? '');
+      setEmail(data.email ?? user?.email ?? '');
+      setAgency(data.agency ?? user?.agency ?? '');
+      setSignOff(data.signOff ?? '');
+      if (data.defaultCover) setCover(data.defaultCover as CoverId);
+    } else if (user) {
+      setEmail(user.email);
+      setAgency(user.agency ?? '');
+    }
+  }, [data, user]);
+
+  const save = useMutation({
+    mutationFn: () =>
+      api.updateBranding({
+        title,
+        whatsapp,
+        email,
+        agency,
+        signOff,
+        defaultCover: cover,
+      }),
+    onSuccess: () => {
+      setSaved(true);
+      qc.invalidateQueries({ queryKey: ['branding'] });
+      setTimeout(() => setSaved(false), 2500);
+    },
+  });
+
   const coverUrl = coverImageUrl(cover);
+  const displayName = user?.displayName ?? '';
 
   return (
     <>
       <PageHead
         title="My branding"
         subtitle="Your name, contact, logo and default cover appear on every proposal you send."
+        actions={
+          <button
+            type="button"
+            className="btn"
+            disabled={save.isPending || isLoading}
+            onClick={() => save.mutate()}
+          >
+            {saved ? 'Saved' : 'Save branding'}
+          </button>
+        }
       />
       <div className="grid g2">
         <div className="card">
@@ -33,38 +81,52 @@ export default function BrandingPage() {
             <div className="grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
               <div>
                 <label>Name on proposals</label>
-                <input defaultValue={b.name} />
+                <input value={displayName} readOnly />
               </div>
               <div>
                 <label>Title</label>
-                <input defaultValue={b.title} />
+                <input value={title} onChange={(e) => setTitle(e.target.value)} />
               </div>
             </div>
             <div className="grid" style={{ gridTemplateColumns: '1fr 1fr' }}>
               <div>
                 <label>WhatsApp number</label>
-                <input type="tel" defaultValue={b.wa} placeholder="+234 …" />
+                <input
+                  type="tel"
+                  value={whatsapp}
+                  onChange={(e) => setWhatsapp(e.target.value)}
+                  placeholder="+234 …"
+                />
               </div>
               <div>
                 <label>Email</label>
-                <input type="email" defaultValue={b.email} />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
               </div>
             </div>
             <div>
               <label>Agency name (agents only)</label>
               <input
-                defaultValue={b.agency}
+                value={agency}
+                onChange={(e) => setAgency(e.target.value)}
                 placeholder="Leave empty for Morgan Oxford Education"
               />
             </div>
             <div>
               <label>Sign-off</label>
-              <input defaultValue={b.sign} placeholder="Warm regards, …" />
+              <input
+                value={signOff}
+                onChange={(e) => setSignOff(e.target.value)}
+                placeholder="Warm regards, …"
+              />
             </div>
             <label className="drop" style={{ padding: 18 }}>
               <Icon name="upload" />
-              <span className="sm mut">Square image works best</span>
-              <input className="sr" type="file" accept="image/*" />
+              <span className="sm mut">Logo upload uses R2 — coming next</span>
+              <input className="sr" type="file" accept="image/*" disabled />
             </label>
             <div>
               <label>Default cover for new proposals</label>
@@ -91,8 +153,8 @@ export default function BrandingPage() {
               </p>
               <h1 className="gt">University options for your family</h1>
               <div style={{ marginTop: 16 }}>
-                <b>{user?.displayName}</b>
-                <p className="sm mut">{b.title}</p>
+                <b>{displayName}</b>
+                <p className="sm mut">{title || user?.role}</p>
               </div>
             </div>
           </div>

@@ -14,22 +14,48 @@ const ADMIN_PREFIXES = [
   '/app/access',
 ];
 
+const COUNSELLOR_PREFIXES = [
+  '/app/students',
+  '/app/student',
+  '/app/new',
+  '/app/search',
+  '/app/compare',
+  '/app/proposals',
+  '/app/proposal',
+  '/app/pipeline',
+  '/app/brand',
+];
+
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, ready } = useAuth();
   const isAdmin = user?.role === 'Admin';
-  const [counsellorView, setCounsellorView] = useState(false);
+  const [counsellorNav, setCounsellorNav] = useState(false);
 
   useEffect(() => {
     if (!ready) return;
-    if (!user) router.replace('/');
+    if (!user) {
+      router.replace('/');
+      return;
+    }
+    if (user.mustChangePassword) {
+      router.replace('/set-password');
+    }
   }, [ready, user, router]);
 
   useEffect(() => {
     if (!isAdmin) return;
-    const onAdmin = ADMIN_PREFIXES.some((p) => pathname.startsWith(p));
-    setCounsellorView(!onAdmin);
+    if (ADMIN_PREFIXES.some((p) => pathname.startsWith(p))) {
+      setCounsellorNav(false);
+      return;
+    }
+    if (
+      pathname === '/app' ||
+      COUNSELLOR_PREFIXES.some((p) => pathname.startsWith(p))
+    ) {
+      setCounsellorNav(true);
+    }
   }, [pathname, isAdmin]);
 
   if (!ready || !user) {
@@ -42,10 +68,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <PortalChrome
-      adminView={isAdmin ? !counsellorView : false}
-      onToggleAdminView={
-        isAdmin ? (admin) => setCounsellorView(!admin) : undefined
-      }
+      counsellorNav={isAdmin ? counsellorNav : true}
+      onNavModeChange={isAdmin ? setCounsellorNav : undefined}
     >
       {children}
     </PortalChrome>

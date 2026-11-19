@@ -18,7 +18,7 @@ import {
 type AuthState = {
   user: LoginResponse['user'] | null;
   ready: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<LoginResponse['user']>;
   signOut: () => void;
   refresh: () => Promise<void>;
 };
@@ -55,6 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const res = await api.login(email.trim().toLowerCase(), password);
     setAccessToken(res.accessToken);
     setUser(res.user);
+    return res.user;
   }, []);
 
   const signOut = useCallback(() => {

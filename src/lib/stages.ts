@@ -1,4 +1,4 @@
-const STAGE_LABELS = [
+export const STAGE_LABELS = [
   'Lead',
   'Contacted',
   'Consultation booked',

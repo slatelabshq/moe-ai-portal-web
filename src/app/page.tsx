@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FormEvent, useState } from 'react';
 import { Icon } from '@/components/icon';
+import { PasswordField } from '@/components/password-field';
 import { LandingIllustration } from '@/components/landing-illustration';
 import { RmMark } from '@/components/rm-mark';
 import { useAuth } from '@/components/auth-provider';
@@ -22,8 +23,8 @@ export default function SignInPage() {
     setError('');
     setBusy(true);
     try {
-      await signIn(email, password);
-      router.push('/app');
+      const signedIn = await signIn(email, password);
+      router.push(signedIn.mustChangePassword ? '/set-password' : '/app');
     } catch (err) {
       setError(
         err instanceof ApiError ? err.message : 'The email or password is not correct.',
@@ -69,17 +70,14 @@ export default function SignInPage() {
               required
             />
           </div>
-          <div>
-            <label htmlFor="lpw">Password</label>
-            <input
-              id="lpw"
-              type="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
+          <PasswordField
+            label="Password"
+            id="lpw"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
           {error ? (
             <p className="er" role="alert">
               {error}

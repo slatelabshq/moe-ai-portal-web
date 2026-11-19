@@ -42,7 +42,14 @@ export default function RequestAccountPage() {
           </p>
         </div>
         {sent ? (
-          <p className="mut">Thanks — an admin will review your request shortly.</p>
+          <div className="f" style={{ textAlign: 'center', gap: 18 }}>
+            <p className="mut">
+              Thanks — an admin will review your request shortly.
+            </p>
+            <Link className="btn" href="/" style={{ justifyContent: 'center' }}>
+              Back to sign in
+            </Link>
+          </div>
         ) : (
           <div className="f">
             <div>

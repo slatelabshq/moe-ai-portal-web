@@ -1,5 +1,7 @@
+'use client';
+
 import Link from 'next/link';
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Icon } from '@/components/icon';
 import { stageLabel } from '@/lib/stages';
 
@@ -81,12 +83,18 @@ export function StudentMono({ name }: { name: string }) {
   return <div className="mono">{initials(name)}</div>;
 }
 
-export function RmMarkBand({ onInk }: { onInk?: boolean }) {
+export function RmMarkBand({
+  onInk,
+  className = '',
+}: {
+  onInk?: boolean;
+  className?: string;
+}) {
   const src = onInk
     ? '/assets/rm/rm-mark-gold@900.png'
     : '/assets/rm/rm-mark-black@900.png';
   return (
-    <div className={`rmk ${onInk ? 'on-ink' : ''}`} aria-hidden>
+    <div className={`rmk ${onInk ? 'on-ink' : ''} ${className}`.trim()} aria-hidden>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={src} alt="" />
     </div>
@@ -94,6 +102,7 @@ export function RmMarkBand({ onInk }: { onInk?: boolean }) {
 }
 
 export function LinkBox({ url }: { url: string }) {
+  const [copied, setCopied] = useState(false);
   const wa = `https://wa.me/?text=${encodeURIComponent(
     'Please fill in this application form for Morgan Oxford Education: ' + url,
   )}`;
@@ -105,8 +114,19 @@ export function LinkBox({ url }: { url: string }) {
         aria-label="Application link"
         style={{ fontSize: 13, minWidth: 0, flex: 1 }}
       />
-      <button type="button" className="ib" aria-label="Copy link">
+      <button
+        type="button"
+        className="btn o s"
+        aria-label={copied ? 'Copied' : 'Copy link'}
+        onClick={() => {
+          void navigator.clipboard.writeText(url).then(() => {
+            setCopied(true);
+            window.setTimeout(() => setCopied(false), 2000);
+          });
+        }}
+      >
         <Icon name="copy" />
+        {copied ? 'Copied' : 'Copy'}
       </button>
       <a
         className="ib"

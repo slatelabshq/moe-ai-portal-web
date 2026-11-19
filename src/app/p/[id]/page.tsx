@@ -47,9 +47,22 @@ export default function FamilyProposalPage() {
             <div key={s.id} className="card gl">
               <b>{s.name}</b>
               <p className="sm mut">{s.partnership} · {(s.countries ?? []).join(', ')}</p>
+              {s.intlFeeHeadline ? (
+                <p className="sm" style={{ marginTop: 6 }}>
+                  {s.intlFeeHeadline}
+                </p>
+              ) : null}
             </div>
           ))}
         </div>
+        <button
+          type="button"
+          className="btn o"
+          style={{ marginTop: 24 }}
+          onClick={() => window.print()}
+        >
+          Print or save as PDF
+        </button>
       </div>
     </div>
   );

@@ -2,30 +2,44 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { ReactNode, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import Image from 'next/image';
 import { Icon } from './icon';
 import { ADMIN_NAV, COUNSELLOR_NAV, NavItem } from '@/lib/nav';
 import { useAuth } from '@/components/auth-provider';
+import { CommandPalette } from '@/components/command-palette';
 
 type Props = {
   children: ReactNode;
-  adminView?: boolean;
-  onToggleAdminView?: (v: boolean) => void;
+  /** When true, show counsellor nav; when false, show admin ops nav (Admin role only). */
+  counsellorNav?: boolean;
+  onNavModeChange?: (counsellorNav: boolean) => void;
 };
 
 export function PortalChrome({
   children,
-  adminView = false,
-  onToggleAdminView,
+  counsellorNav = false,
+  onNavModeChange,
 }: Props) {
   const pathname = usePathname();
   const router = useRouter();
   const { user, signOut } = useAuth();
   const [sideOpen, setSideOpen] = useState(false);
   const [bellOpen, setBellOpen] = useState(false);
+  const [palOpen, setPalOpen] = useState(false);
+  useEffect(() => {
+    const fn = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setPalOpen((v) => !v);
+      }
+    };
+    window.addEventListener('keydown', fn);
+    return () => window.removeEventListener('keydown', fn);
+  }, []);
+
   const allowed = new Set(user?.permissions ?? []);
-  const nav: NavItem[] = (adminView ? ADMIN_NAV : COUNSELLOR_NAV).filter(
+  const nav: NavItem[] = (counsellorNav ? COUNSELLOR_NAV : ADMIN_NAV).filter(
     (item) => user?.role === 'Admin' || allowed.has(item.perm),
   );
 
@@ -70,23 +84,35 @@ export function PortalChrome({
             />
             Morgan Oxford
           </div>
-          {onToggleAdminView ? (
-            <div className="sel3" style={{ margin: '0 6px 12px' }}>
+          {onNavModeChange ? (
+            <div
+              className="sel3 side-mode"
+              role="group"
+              aria-label="Portal mode"
+            >
               <button
                 type="button"
-                className={adminView ? '' : 'on'}
-                onClick={() => onToggleAdminView(false)}
+                className={!counsellorNav ? 'on' : ''}
+                onClick={() => {
+                  onNavModeChange(false);
+                  router.push('/app/overview');
+                  setSideOpen(false);
+                }}
               >
                 <Icon name="chart" className="s" />
                 Admin
               </button>
               <button
                 type="button"
-                className={adminView ? 'on' : ''}
-                onClick={() => onToggleAdminView(true)}
+                className={counsellorNav ? 'on' : ''}
+                onClick={() => {
+                  onNavModeChange(true);
+                  router.push('/app');
+                  setSideOpen(false);
+                }}
               >
                 <Icon name="users" className="s" />
-                Counsellor view
+                Counsellor
               </button>
             </div>
           ) : null}
@@ -141,7 +167,11 @@ export function PortalChrome({
             >
               <Icon name="menu" />
             </button>
-            <button type="button" className="sbtn">
+            <button
+              type="button"
+              className="sbtn"
+              onClick={() => setPalOpen(true)}
+            >
               <Icon name="search" />
               <span>Search</span>
               <kbd>⌘K</kbd>
@@ -199,9 +229,13 @@ export function PortalChrome({
           </button>
         ) : null}
       </nav>
-      <div className="ov" id="ov" aria-hidden />
+      <CommandPalette
+        open={palOpen}
+        onClose={() => setPalOpen(false)}
+        canSchools={user?.role === 'Admin' || user?.role === 'BD' || allowed.has('schools')}
+        canStudents={allowed.has('students')}
+      />
       <aside className="drw" id="drw" aria-label="Details" />
-      <div className="pal" id="pal" role="dialog" aria-label="Search" />
       <div className="mdl" id="mdl" role="dialog" />
       <div id="toast" role="status" aria-live="polite" />
     </>
